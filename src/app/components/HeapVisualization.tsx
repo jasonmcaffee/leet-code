@@ -296,7 +296,7 @@ function HeapVisualization() {
       </div>
 
       <div className={styles.visualization}>
-        <Canvas camera={{ position: [0, 0, 12], fov: 45 }}>
+        <Canvas camera={{ position: [0, 0, 15], fov: 35 }}>
           <color attach="background" args={['#f0f0f0']} />
           <ambientLight intensity={0.6} />
           <directionalLight position={[4, 4, 4]} intensity={1.5} />
