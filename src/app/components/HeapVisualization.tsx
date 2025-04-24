@@ -10,18 +10,32 @@ import styles from './HeapVisualization.module.css';
 interface Node {
   value: number;
   position: [number, number, number];
+  isNew?: boolean;
+  isImpacted?: boolean;
 }
 
-function HeapNode({ value, position }: { value: number; position: [number, number, number] }) {
+function HeapNode({ value, position, isNew, isImpacted }: { 
+  value: number; 
+  position: [number, number, number];
+  isNew?: boolean;
+  isImpacted?: boolean;
+}) {
+  // Determine node color based on state
+  const getNodeColor = () => {
+    if (isNew) return '#059669'; // Darker emerald green
+    if (isImpacted) return '#0284c7'; // Bright cyan blue
+    return '#4f46e5'; // Deep indigo
+  };
+
   return (
     <group position={position}>
       <mesh>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial 
-          color="#2563eb"
-          metalness={0.3}
-          roughness={0.4}
-          envMapIntensity={1}
+          color={getNodeColor()}
+          metalness={0.4}
+          roughness={0.3}
+          envMapIntensity={1.2}
         />
       </mesh>
       <Text
@@ -63,7 +77,7 @@ function TreeContainer({ nodes, scrollOffset }: { nodes: Node[]; scrollOffset: n
     <group position={[0, -scrollOffset, 0]}>
       <HeapConnections nodes={nodes} />
       {nodes.map((node, index) => (
-        <HeapNode key={index} value={node.value} position={node.position} />
+        <HeapNode key={index} value={node.value} position={node.position} isNew={node.isNew} isImpacted={node.isImpacted} />
       ))}
     </group>
   );
@@ -96,35 +110,39 @@ function HeapVisualization() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Maintain heap property by moving a node up if it's smaller than its parent
-  const heapifyUp = (heap: number[], index: number) => {
-    const parent = Math.floor((index - 1) / 2);
-    if (index > 0 && heap[index] < heap[parent]) {
-      [heap[index], heap[parent]] = [heap[parent], heap[index]];
-      heapifyUp(heap, parent);
-    }
-  };
-
   // Add a random value to the heap and update visualization
   const addRandomValue = () => {
     // Generate random value between 0 and 99
     const newValue = Math.floor(Math.random() * 100);
     // Add to heap and maintain heap property
     const newHeap = [...heap, newValue];
-    heapifyUp(newHeap, newHeap.length - 1);
+    
+    // Track impacted nodes during heapify
+    const impactedNodes = new Set<number>();
+    const heapifyUpWithTracking = (heap: number[], index: number) => {
+      const parent = Math.floor((index - 1) / 2);
+      if (index > 0 && heap[index] < heap[parent]) {
+        [heap[index], heap[parent]] = [heap[parent], heap[index]];
+        impactedNodes.add(parent);
+        heapifyUpWithTracking(heap, parent);
+      }
+    };
+    
+    heapifyUpWithTracking(newHeap, newHeap.length - 1);
     setHeap(newHeap);
     
     // Calculate positions for all nodes in the tree
     const newNodes = newHeap.map((value, index) => {
-      // Calculate the level of the node in the tree (0-based)
       const level = Math.floor(Math.log2(index + 1));
-      // Calculate position within the level
       const positionInLevel = index - Math.pow(2, level) + 1;
-      // Calculate x position based on position in level
       const x = positionInLevel * 2 - Math.pow(2, level) + 1;
-      // Calculate y position (negative to grow downward)
-      const y = -level * 2 + 4; // Start from top (y=4) and grow downward
-      return { value, position: [x, y, 0] as [number, number, number] };
+      const y = -level * 2 + 4;
+      return { 
+        value, 
+        position: [x, y, 0] as [number, number, number],
+        isNew: index === newHeap.length - 1,
+        isImpacted: impactedNodes.has(index)
+      };
     });
     
     setNodes(newNodes);
@@ -148,12 +166,12 @@ function HeapVisualization() {
       </div>
 
       <div className={styles.visualization}>
-        <Canvas camera={{ position: [0, 0, 15], fov: 50 }}>
+        <Canvas camera={{ position: [0, 0, 12], fov: 45 }}>
           <color attach="background" args={['#f0f0f0']} />
           <ambientLight intensity={0.5} />
-          <directionalLight position={[5, 5, 5]} intensity={0.8} />
-          <directionalLight position={[-5, 5, -5]} intensity={0.5} />
-          <pointLight position={[0, 0, 5]} intensity={0.5} />
+          <directionalLight position={[3, 3, 3]} intensity={1.2} />
+          <directionalLight position={[-3, 3, -3]} intensity={0.8} />
+          <pointLight position={[0, 0, 3]} intensity={0.6} />
           <TreeContainer nodes={nodes} scrollOffset={scrollOffset} />
           <OrbitControls 
             enablePan={false}
