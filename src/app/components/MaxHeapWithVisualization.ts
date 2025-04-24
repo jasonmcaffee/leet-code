@@ -2,9 +2,11 @@ import { MaxHeap } from './MaxHeap';
 
 /**
  * MaxHeapWithVisualization extends MaxHeap to add visualization capabilities.
- * This class tracks impacted nodes and provides step-by-step visualization of operations.
+ * This class ONLY adds visualization tracking and step-by-step visualization.
+ * All heap operations are delegated to the base MaxHeap class.
  */
 export class MaxHeapWithVisualization extends MaxHeap {
+  // Visualization-specific properties
   private impactedNodes: Set<number>;
   private onStep?: (description: string) => void;
 
@@ -12,6 +14,11 @@ export class MaxHeapWithVisualization extends MaxHeap {
     super();
     this.impactedNodes = new Set();
   }
+
+  /**
+   * Visualization-specific methods
+   * These methods only handle the visualization aspects and delegate actual heap operations to the base class
+   */
 
   /**
    * Set a callback function to be called for each step in the visualization
@@ -35,7 +42,8 @@ export class MaxHeapWithVisualization extends MaxHeap {
   }
 
   /**
-   * Override insert to track impacted nodes
+   * Override insert to add visualization tracking
+   * Delegates actual insertion to base class
    */
   insert(value: number): void {
     this.clearImpactedNodes();
@@ -78,8 +86,8 @@ export class MaxHeapWithVisualization extends MaxHeap {
   }
 
   /**
-   * Override findNthLargest to provide step-by-step visualization
-   * Uses a more efficient algorithm that leverages the heap property
+   * Override findNthLargest to add step-by-step visualization
+   * Uses base class's heap operations but adds visualization steps
    */
   async findNthLargest(n: number): Promise<number> {
     if (n < 1 || n > this.size) {
