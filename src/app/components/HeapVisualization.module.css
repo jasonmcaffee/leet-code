@@ -44,10 +44,10 @@
 }
 
 .code {
-  font-family: monospace;
-  background-color: black;
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-sm);
   margin-top: var(--spacing-md);
-  white-space: pre-wrap;
+}
+
+.codeWrapper {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 } 

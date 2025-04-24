@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Line } from '@react-three/drei';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import styles from './HeapVisualization.module.css';
 
 interface Node {
@@ -144,7 +146,20 @@ function HeapVisualization() {
       </div>
 
       <div className={styles.code}>
-        {`// Min Heap Implementation
+        <div className={styles.codeWrapper}>
+          <SyntaxHighlighter 
+            language="javascript" 
+            style={atomDark}
+            customStyle={{
+              margin: 0,
+              padding: '20px',
+              fontSize: '14px',
+              lineHeight: '1.5',
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+              background: '#282c34',
+            }}
+          >
+            {`// Min Heap Implementation
 class MinHeap {
   constructor() {
     this.heap = [];
@@ -208,6 +223,8 @@ class MinHeap {
     }
   }
 }`}
+          </SyntaxHighlighter>
+        </div>
       </div>
     </div>
   );
