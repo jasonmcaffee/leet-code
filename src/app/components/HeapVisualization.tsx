@@ -109,6 +109,12 @@ function HeapVisualization() {
     for (let i = 0; i < 5; i++) {
       initialHeap.push(Math.floor(Math.random() * 100));
     }
+    
+    // Convert to max heap
+    for (let i = Math.floor(initialHeap.length / 2) - 1; i >= 0; i--) {
+      heapifyDown(initialHeap, i);
+    }
+    
     setHeap(initialHeap);
 
     // Calculate initial node positions
@@ -137,6 +143,26 @@ function HeapVisualization() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Helper function to maintain max heap property
+  const heapifyDown = (heap: number[], i: number) => {
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
+    let largest = i;
+
+    if (left < heap.length && heap[left] > heap[largest]) {
+      largest = left;
+    }
+
+    if (right < heap.length && heap[right] > heap[largest]) {
+      largest = right;
+    }
+
+    if (largest !== i) {
+      [heap[i], heap[largest]] = [heap[largest], heap[i]];
+      heapifyDown(heap, largest);
+    }
+  };
+
   // Add a random value to the heap and update visualization
   const addRandomValue = () => {
     // Generate random value between 0 and 99
@@ -148,7 +174,7 @@ function HeapVisualization() {
     const impactedNodes = new Set<number>();
     const heapifyUpWithTracking = (heap: number[], index: number) => {
       const parent = Math.floor((index - 1) / 2);
-      if (index > 0 && heap[index] < heap[parent]) {
+      if (index > 0 && heap[index] > heap[parent]) {
         [heap[index], heap[parent]] = [heap[parent], heap[index]];
         impactedNodes.add(parent);
         heapifyUpWithTracking(heap, parent);
@@ -191,6 +217,7 @@ function HeapVisualization() {
     // Create a copy of the heap to work with
     const heapCopy = [...heap];
     const nodesCopy = [...nodes];
+    let operations = 0;
     
     // Function to update node visualization
     const updateNodeVisualization = (index: number, isEvaluating: boolean) => {
@@ -210,10 +237,12 @@ function HeapVisualization() {
       updateNodeVisualization(i, true);
       setAlgorithmDescription(`Evaluating node ${heap[i]} at position ${i}`);
       await new Promise(resolve => setTimeout(resolve, 500));
+      operations++; // Count node visit
 
       if (left < heap.length) {
         setAlgorithmDescription(`Comparing ${heap[i]} with left child ${heap[left]}`);
         await new Promise(resolve => setTimeout(resolve, 500));
+        operations++; // Count comparison
         if (heap[left] > heap[largest]) {
           largest = left;
           setAlgorithmDescription(`${heap[left]} is greater than ${heap[i]}, updating largest`);
@@ -223,6 +252,7 @@ function HeapVisualization() {
       if (right < heap.length) {
         setAlgorithmDescription(`Comparing ${heap[largest]} with right child ${heap[right]}`);
         await new Promise(resolve => setTimeout(resolve, 500));
+        operations++; // Count comparison
         if (heap[right] > heap[largest]) {
           largest = right;
           setAlgorithmDescription(`${heap[right]} is greater than ${heap[largest]}, updating largest`);
@@ -234,6 +264,7 @@ function HeapVisualization() {
         updateNodeVisualization(largest, true);
         setAlgorithmDescription(`Swapping ${heap[i]} with ${heap[largest]}`);
         await new Promise(resolve => setTimeout(resolve, 500));
+        operations++; // Count swap
 
         [heap[i], heap[largest]] = [heap[largest], heap[i]];
         await heapifyDownWithVisualization(heap, nodes, largest);
@@ -242,12 +273,6 @@ function HeapVisualization() {
       updateNodeVisualization(i, false);
     };
 
-    // Convert to max heap
-    setAlgorithmDescription('Converting to max heap...');
-    for (let i = Math.floor(heapCopy.length / 2) - 1; i >= 0; i--) {
-      await heapifyDownWithVisualization(heapCopy, nodesCopy, i);
-    }
-
     // Extract n-1 elements to get to the nth largest
     setAlgorithmDescription(`Extracting ${n-1} elements to find the ${n}th largest...`);
     for (let i = 0; i < n - 1; i++) {
@@ -255,6 +280,7 @@ function HeapVisualization() {
       updateNodeVisualization(0, true);
       setAlgorithmDescription(`Removing root element ${heapCopy[0]}`);
       await new Promise(resolve => setTimeout(resolve, 500));
+      operations++; // Count pop
 
       // Move last element to root
       const lastElement = heapCopy.pop()!;
@@ -265,7 +291,7 @@ function HeapVisualization() {
 
     // The root is now the nth largest element
     updateNodeVisualization(0, true);
-    setAlgorithmDescription(`The ${n}th largest element is: ${heapCopy[0]}`);
+    setAlgorithmDescription(`The ${n}th largest element is: ${heapCopy[0]} (Found in ${operations} operations)`);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Reset visualization
@@ -283,7 +309,7 @@ function HeapVisualization() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Min Heap Visualization</h2>
+      <h2 className={styles.title}>Max Heap Visualization</h2>
       
       <div className={styles.controls}>
         <button className={styles.button} onClick={addRandomValue}>
@@ -346,35 +372,46 @@ function HeapVisualization() {
               background: '#282c34',
             }}
           >
-            {`// MinHeap Implementation
-// A MinHeap is a complete binary tree where each node is smaller than its children
-class MinHeap {
+            {`// MaxHeap Implementation
+// A MaxHeap is a complete binary tree where each node is larger than its children
+// This ensures the largest element is always at the root
+class MaxHeap {
   constructor() {
     // Initialize an empty array to store the heap
     this.heap = [];
   }
 
   // Get the index of the parent node
+  // For any node at index i, its parent is at index (i-1)/2
   parent(i) {
     return Math.floor((i - 1) / 2);
   }
 
   // Get the index of the left child
+  // For any node at index i, its left child is at index 2i+1
   leftChild(i) {
     return 2 * i + 1;
   }
 
   // Get the index of the right child
+  // For any node at index i, its right child is at index 2i+2
   rightChild(i) {
     return 2 * i + 2;
   }
 
   // Swap two elements in the heap
+  // This is a helper function to maintain the heap property
   swap(i, j) {
-    [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+    // Store the value at index i in a temporary variable
+    const temp = this.heap[i];
+    // Move the value from index j to index i
+    this.heap[i] = this.heap[j];
+    // Move the stored value to index j
+    this.heap[j] = temp;
   }
 
   // Insert a new value into the heap
+  // Time Complexity: O(log n) where n is the number of nodes
   insert(value) {
     // Add the new value to the end of the array
     this.heap.push(value);
@@ -382,57 +419,62 @@ class MinHeap {
     this.heapifyUp(this.heap.length - 1);
   }
 
-  // Maintain heap property by moving a node up if it's smaller than its parent
+  // Maintain heap property by moving a node up if it's larger than its parent
+  // This is used after insertion to ensure the max heap property
   heapifyUp(i) {
     const parent = this.parent(i);
-    // If the current node is smaller than its parent, swap them
-    if (i > 0 && this.heap[i] < this.heap[parent]) {
+    // If the current node is larger than its parent, swap them
+    // This ensures the larger value moves up in the tree
+    if (i > 0 && this.heap[i] > this.heap[parent]) {
       this.swap(i, parent);
       // Continue heapifying up from the parent's position
       this.heapifyUp(parent);
     }
   }
 
-  // Remove and return the minimum value from the heap
-  extractMin() {
+  // Remove and return the maximum value from the heap
+  // Time Complexity: O(log n) where n is the number of nodes
+  extractMax() {
     // Handle empty heap case
     if (this.heap.length === 0) return null;
     // Handle single element case
     if (this.heap.length === 1) return this.heap.pop();
 
-    // Store the minimum value (root)
-    const min = this.heap[0];
+    // Store the maximum value (root)
+    const max = this.heap[0];
     // Replace root with the last element
     this.heap[0] = this.heap.pop();
     // Maintain heap property by moving the new root down if needed
     this.heapifyDown(0);
-    return min;
+    return max;
   }
 
-  // Maintain heap property by moving a node down if it's larger than its children
+  // Maintain heap property by moving a node down if it's smaller than its children
+  // This is used after extraction to ensure the max heap property
   heapifyDown(i) {
     const left = this.leftChild(i);
     const right = this.rightChild(i);
-    let smallest = i;
+    let largest = i;
 
-    // Check if left child exists and is smaller than current node
-    if (left < this.heap.length && this.heap[left] < this.heap[smallest]) {
-      smallest = left;
+    // Check if left child exists and is larger than current node
+    if (left < this.heap.length && this.heap[left] > this.heap[largest]) {
+      largest = left;
     }
 
-    // Check if right child exists and is smaller than current smallest
-    if (right < this.heap.length && this.heap[right] < this.heap[smallest]) {
-      smallest = right;
+    // Check if right child exists and is larger than current largest
+    if (right < this.heap.length && this.heap[right] > this.heap[largest]) {
+      largest = right;
     }
 
-    // If the smallest value is not the current node, swap and continue heapifying down
-    if (smallest !== i) {
-      this.swap(i, smallest);
-      this.heapifyDown(smallest);
+    // If the largest value is not the current node, swap and continue heapifying down
+    if (largest !== i) {
+      this.swap(i, largest);
+      this.heapifyDown(largest);
     }
   }
 
   // Find the Nth largest element in the heap
+  // Time Complexity: O(n log n) where n is the number of nodes
   findNthLargest(n) {
     if (n < 1 || n > this.heap.length) {
       throw new Error('Invalid value for n');
@@ -440,41 +482,42 @@ class MinHeap {
 
     // Create a copy of the heap to work with
     const heapCopy = [...this.heap];
+    let operations = 0;
     
-    // Convert to max heap
-    for (let i = Math.floor(heapCopy.length / 2) - 1; i >= 0; i--) {
-      this.heapifyDown(heapCopy, i);
-    }
-
     // Extract n-1 elements to get to the nth largest
     for (let i = 0; i < n - 1; i++) {
       // Move last element to root
       heapCopy[0] = heapCopy.pop();
-      this.heapifyDown(heapCopy, 0);
+      operations++; // Count pop
+      
+      // Heapify down to maintain max heap property
+      let current = 0;
+      while (true) {
+        const left = 2 * current + 1;
+        const right = 2 * current + 2;
+        let largest = current;
+        
+        operations++; // Count comparison
+        if (left < heapCopy.length && heapCopy[left] > heapCopy[largest]) {
+          largest = left;
+        }
+        
+        operations++; // Count comparison
+        if (right < heapCopy.length && heapCopy[right] > heapCopy[largest]) {
+          largest = right;
+        }
+        
+        if (largest === current) break;
+        
+        // Swap and continue
+        [heapCopy[current], heapCopy[largest]] = [heapCopy[largest], heapCopy[current]];
+        operations++; // Count swap
+        current = largest;
+      }
     }
-
-    // The root is now the nth largest element
-    return heapCopy[0];
-  }
-
-  // Modified heapifyDown to work with a specific heap array
-  heapifyDown(heap, i) {
-    const left = 2 * i + 1;
-    const right = 2 * i + 2;
-    let largest = i;
-
-    if (left < heap.length && heap[left] > heap[largest]) {
-      largest = left;
-    }
-
-    if (right < heap.length && heap[right] > heap[largest]) {
-      largest = right;
-    }
-
-    if (largest !== i) {
-      [heap[i], heap[largest]] = [heap[largest], heap[i]];
-      this.heapifyDown(heap, largest);
-    }
+    
+    console.log('Found ' + n + 'th largest element in ' + operations + ' operations');
+    return heapCopy[0]; // The root is now the nth largest element
   }
 }`}
           </SyntaxHighlighter>
