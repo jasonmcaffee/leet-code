@@ -45,7 +45,7 @@
 .constraints {
   margin-top: var(--spacing-md);
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--color-border);
+
 }
 
 .constraintsTitle {
@@ -57,4 +57,17 @@
 .constraintsList {
   list-style-type: none;
   color: var(--color-text-secondary);
+}
+
+.solution {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.solutionTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
 } 

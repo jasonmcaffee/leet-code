@@ -38,7 +38,10 @@ export default function KthLargestElement() {
         </ul>
       </div>
 
-      <HeapVisualization />
+      <div className={styles.solution}>
+        <h2 className={styles.solutionTitle}>Solution</h2>
+        <HeapVisualization />
+      </div>
     </div>
   );
 } 

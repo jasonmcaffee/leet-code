@@ -195,7 +195,7 @@ function HeapVisualization() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Max Heap Visualization</h2>
+      {/* <h2 className={styles.title}>Max Heap Visualization</h2> */}
       
       <div className={styles.controls}>
         <button className={styles.button} onClick={addRandomValue}>
