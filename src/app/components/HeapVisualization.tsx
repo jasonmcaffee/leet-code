@@ -17,8 +17,9 @@ function HeapNode({ value, position }: { value: number; position: [number, numbe
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial 
           color="#2563eb"
-          metalness={0.5}
-          roughness={0.5}
+          metalness={0.3}
+          roughness={0.4}
+          envMapIntensity={1}
         />
       </mesh>
       <Text
@@ -105,7 +106,7 @@ function HeapVisualization() {
       const level = Math.floor(Math.log2(index + 1));
       const positionInLevel = index - Math.pow(2, level) + 1;
       const x = positionInLevel * 2 - Math.pow(2, level) + 1;
-      const y = level * 2; // Positive Y to make tree grow upward
+      const y = -level * 2; // Negative Y to make tree grow downward from top
       return { value, position: [x, y, 0] as [number, number, number] };
     });
     
@@ -128,9 +129,11 @@ function HeapVisualization() {
 
       <div className={styles.visualization}>
         <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+          <color attach="background" args={['#f0f0f0']} />
           <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <pointLight position={[-10, -10, -10]} intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={0.8} />
+          <directionalLight position={[-5, 5, -5]} intensity={0.5} />
+          <pointLight position={[0, 0, 5]} intensity={0.5} />
           <TreeContainer nodes={nodes} scrollOffset={scrollOffset} />
           <OrbitControls 
             enablePan={false}
