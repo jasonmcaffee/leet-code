@@ -104,6 +104,27 @@ function HeapVisualization() {
   useEffect(() => {
     setMounted(true);
 
+    // Initialize heap with 5 random values
+    const initialHeap: number[] = [];
+    for (let i = 0; i < 5; i++) {
+      initialHeap.push(Math.floor(Math.random() * 100));
+    }
+    setHeap(initialHeap);
+
+    // Calculate initial node positions
+    const initialNodes = initialHeap.map((value, index) => {
+      const level = Math.floor(Math.log2(index + 1));
+      const positionInLevel = index - Math.pow(2, level) + 1;
+      const x = positionInLevel * 2 - Math.pow(2, level) + 1;
+      const y = -level * 2 + 4;
+      return { 
+        value, 
+        position: [x, y, 0] as [number, number, number],
+        isNew: index === initialHeap.length - 1  // Only mark the last node as new
+      };
+    });
+    setNodes(initialNodes);
+
     // Handle keyboard navigation for scrolling
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
