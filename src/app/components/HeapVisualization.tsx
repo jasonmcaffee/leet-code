@@ -12,16 +12,19 @@ interface Node {
   position: [number, number, number];
   isNew?: boolean;
   isImpacted?: boolean;
+  isEvaluating?: boolean;  // New property for visualization
 }
 
-function HeapNode({ value, position, isNew, isImpacted }: { 
+function HeapNode({ value, position, isNew, isImpacted, isEvaluating }: { 
   value: number; 
   position: [number, number, number];
   isNew?: boolean;
   isImpacted?: boolean;
+  isEvaluating?: boolean;
 }) {
   // Determine node color based on state
   const getNodeColor = () => {
+    if (isEvaluating) return '#f59e0b'; // Amber color for evaluating nodes
     if (isNew) return '#10b981'; // Bright emerald green
     if (isImpacted) return '#0ea5e9'; // Bright sky blue
     return '#8b5cf6'; // Bright purple
@@ -77,7 +80,7 @@ function TreeContainer({ nodes, scrollOffset }: { nodes: Node[]; scrollOffset: n
     <group position={[0, -scrollOffset, 0]}>
       <HeapConnections nodes={nodes} />
       {nodes.map((node, index) => (
-        <HeapNode key={index} value={node.value} position={node.position} isNew={node.isNew} isImpacted={node.isImpacted} />
+        <HeapNode key={index} value={node.value} position={node.position} isNew={node.isNew} isImpacted={node.isImpacted} isEvaluating={node.isEvaluating} />
       ))}
     </group>
   );
@@ -88,6 +91,9 @@ function HeapVisualization() {
   const [heap, setHeap] = useState<number[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [scrollOffset, setScrollOffset] = useState(0);
+  const [nthValue, setNthValue] = useState<string>('1');
+  const [isFindingNth, setIsFindingNth] = useState(false);
+  const [algorithmDescription, setAlgorithmDescription] = useState<string>('');
 
   // Reset the heap and nodes to empty state
   const resetHeap = () => {
@@ -148,6 +154,108 @@ function HeapVisualization() {
     setNodes(newNodes);
   };
 
+  // Function to find Nth largest element with visualization
+  const findNthLargest = async () => {
+    if (heap.length === 0) return;
+    
+    const n = parseInt(nthValue);
+    if (isNaN(n) || n < 1 || n > heap.length) {
+      setAlgorithmDescription('Please enter a valid number between 1 and ' + heap.length);
+      return;
+    }
+
+    setIsFindingNth(true);
+    setAlgorithmDescription('Starting to find the ' + n + 'th largest element...');
+    
+    // Create a copy of the heap to work with
+    const heapCopy = [...heap];
+    const nodesCopy = [...nodes];
+    
+    // Function to update node visualization
+    const updateNodeVisualization = (index: number, isEvaluating: boolean) => {
+      setNodes(prevNodes => prevNodes.map((node, i) => ({
+        ...node,
+        isEvaluating: i === index ? isEvaluating : false
+      })));
+    };
+
+    // Function to simulate heapify down with visualization
+    const heapifyDownWithVisualization = async (heap: number[], nodes: Node[], i: number) => {
+      const left = 2 * i + 1;
+      const right = 2 * i + 2;
+      let largest = i;
+
+      // Visualize current node being evaluated
+      updateNodeVisualization(i, true);
+      setAlgorithmDescription(`Evaluating node ${heap[i]} at position ${i}`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      if (left < heap.length) {
+        setAlgorithmDescription(`Comparing ${heap[i]} with left child ${heap[left]}`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (heap[left] > heap[largest]) {
+          largest = left;
+          setAlgorithmDescription(`${heap[left]} is greater than ${heap[i]}, updating largest`);
+        }
+      }
+
+      if (right < heap.length) {
+        setAlgorithmDescription(`Comparing ${heap[largest]} with right child ${heap[right]}`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (heap[right] > heap[largest]) {
+          largest = right;
+          setAlgorithmDescription(`${heap[right]} is greater than ${heap[largest]}, updating largest`);
+        }
+      }
+
+      if (largest !== i) {
+        // Visualize swap
+        updateNodeVisualization(largest, true);
+        setAlgorithmDescription(`Swapping ${heap[i]} with ${heap[largest]}`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        [heap[i], heap[largest]] = [heap[largest], heap[i]];
+        await heapifyDownWithVisualization(heap, nodes, largest);
+      }
+      
+      updateNodeVisualization(i, false);
+    };
+
+    // Convert to max heap
+    setAlgorithmDescription('Converting to max heap...');
+    for (let i = Math.floor(heapCopy.length / 2) - 1; i >= 0; i--) {
+      await heapifyDownWithVisualization(heapCopy, nodesCopy, i);
+    }
+
+    // Extract n-1 elements to get to the nth largest
+    setAlgorithmDescription(`Extracting ${n-1} elements to find the ${n}th largest...`);
+    for (let i = 0; i < n - 1; i++) {
+      // Visualize root node
+      updateNodeVisualization(0, true);
+      setAlgorithmDescription(`Removing root element ${heapCopy[0]}`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Move last element to root
+      const lastElement = heapCopy.pop()!;
+      heapCopy[0] = lastElement;
+      setAlgorithmDescription(`Moving last element ${lastElement} to root position`);
+      await heapifyDownWithVisualization(heapCopy, nodesCopy, 0);
+    }
+
+    // The root is now the nth largest element
+    updateNodeVisualization(0, true);
+    setAlgorithmDescription(`The ${n}th largest element is: ${heapCopy[0]}`);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Reset visualization
+    setNodes(prevNodes => prevNodes.map(node => ({
+      ...node,
+      isEvaluating: false
+    })));
+    
+    setIsFindingNth(false);
+  };
+
   if (!mounted) {
     return null;
   }
@@ -163,6 +271,28 @@ function HeapVisualization() {
         <button className={styles.button} onClick={resetHeap}>
           Reset Heap
         </button>
+        <div className={styles.nthControls}>
+          <input
+            type="number"
+            min="1"
+            value={nthValue}
+            onChange={(e) => setNthValue(e.target.value)}
+            className={styles.input}
+            placeholder="Enter N"
+            disabled={isFindingNth}
+          />
+          <button 
+            className={styles.button} 
+            onClick={findNthLargest}
+            disabled={isFindingNth || heap.length === 0}
+          >
+            Find Nth Largest
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.algorithmDescription}>
+        {algorithmDescription}
       </div>
 
       <div className={styles.visualization}>
@@ -278,6 +408,51 @@ class MinHeap {
     if (smallest !== i) {
       this.swap(i, smallest);
       this.heapifyDown(smallest);
+    }
+  }
+
+  // Find the Nth largest element in the heap
+  findNthLargest(n) {
+    if (n < 1 || n > this.heap.length) {
+      throw new Error('Invalid value for n');
+    }
+
+    // Create a copy of the heap to work with
+    const heapCopy = [...this.heap];
+    
+    // Convert to max heap
+    for (let i = Math.floor(heapCopy.length / 2) - 1; i >= 0; i--) {
+      this.heapifyDown(heapCopy, i);
+    }
+
+    // Extract n-1 elements to get to the nth largest
+    for (let i = 0; i < n - 1; i++) {
+      // Move last element to root
+      heapCopy[0] = heapCopy.pop();
+      this.heapifyDown(heapCopy, 0);
+    }
+
+    // The root is now the nth largest element
+    return heapCopy[0];
+  }
+
+  // Modified heapifyDown to work with a specific heap array
+  heapifyDown(heap, i) {
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
+    let largest = i;
+
+    if (left < heap.length && heap[left] > heap[largest]) {
+      largest = left;
+    }
+
+    if (right < heap.length && heap[right] > heap[largest]) {
+      largest = right;
+    }
+
+    if (largest !== i) {
+      [heap[i], heap[largest]] = [heap[largest], heap[i]];
+      this.heapifyDown(heap, largest);
     }
   }
 }`}
