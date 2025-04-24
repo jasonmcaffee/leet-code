@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Line } from '@react-three/drei';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -92,13 +92,14 @@ function TreeContainer({ nodes, scrollOffset }: { nodes: Node[]; scrollOffset: n
 
 function HeapVisualization() {
   const [mounted, setMounted] = useState(false);
-  const [maxHeap] = useState(() => new MaxHeapWithVisualization());
+  const [maxHeap, setMaxHeap] = useState(() => new MaxHeapWithVisualization());
   const [nodes, setNodes] = useState<Node[]>([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [nthValue, setNthValue] = useState<string>('1');
   const [isFindingNth, setIsFindingNth] = useState(false);
   const [algorithmDescription, setAlgorithmDescription] = useState<string>('');
   const [codeContent, setCodeContent] = useState<string>('');
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     // Fetch the code content from our API route
@@ -109,15 +110,21 @@ function HeapVisualization() {
   }, []);
 
   const resetHeap = () => {
-    maxHeap.clearImpactedNodes();
+    const newHeap = new MaxHeapWithVisualization();
+    setMaxHeap(newHeap);
     setNodes([]);
+    setAlgorithmDescription('');
+    isInitialLoad.current = false;
   };
 
   useEffect(() => {
     setMounted(true);
 
-    for (let i = 0; i < 5; i++) {
-      maxHeap.insert(Math.floor(Math.random() * 100));
+    if (isInitialLoad.current) {
+      for (let i = 0; i < 5; i++) {
+        maxHeap.insert(Math.floor(Math.random() * 100));
+      }
+      isInitialLoad.current = false;
     }
     
     const initialNodes = maxHeap.values.map((value, index) => {
