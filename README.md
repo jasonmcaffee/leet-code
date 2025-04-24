@@ -14,8 +14,38 @@ This project provides interactive visualizations of various data structures and 
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v23.6.1)
 - npm (v6 or higher)
+- nvm (Node Version Manager)
+
+### Setting up nvm
+
+This project uses Node.js version 23.6.1, which is specified in the `.nvmrc` file. To automatically switch to the correct Node.js version when entering the project directory, add the following to your `.zshrc`:
+
+```bash
+# Add this to your .zshrc
+autoload -U add-zsh-hook
+load-nvmrc() {
+  local node_version="$(nvm version)"
+  local nvmrc_path="$(nvm_find_nvmrc)"
+
+  if [ -n "$nvmrc_path" ]; then
+    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+
+    if [ "$nvmrc_node_version" = "N/A" ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$node_version" ]; then
+      nvm use
+    fi
+  elif [ "$node_version" != "$(nvm version default)" ]; then
+    nvm use default
+  fi
+}
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
+```
+
+After adding this configuration, restart your terminal or run `source ~/.zshrc` to apply the changes.
 
 ### Installation
 
