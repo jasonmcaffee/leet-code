@@ -205,15 +205,6 @@ function HeapVisualization() {
           Reset Heap
         </button>
         <div className={styles.nthControls}>
-          <input
-            type="number"
-            min="1"
-            value={nthValue}
-            onChange={(e) => setNthValue(e.target.value)}
-            className={styles.input}
-            placeholder="Enter N"
-            disabled={isFindingNth}
-          />
           <button 
             className={styles.button} 
             onClick={findNthLargest}
@@ -221,11 +212,19 @@ function HeapVisualization() {
           >
             Find Nth Largest
           </button>
+          <input
+            type="number"
+            min="1"
+            value={nthValue}
+            onChange={(e) => setNthValue(e.target.value)}
+            className={styles.input}
+            placeholder="N"
+            disabled={isFindingNth}
+          />
         </div>
-      </div>
-
-      <div className={styles.algorithmDescription}>
-        {algorithmDescription}
+        <div className={styles.algorithmDescription}>
+          {algorithmDescription}
+        </div>
       </div>
 
       <div className={styles.visualization}>
