@@ -1,53 +1,62 @@
 .container {
-  background-color: var(--color-surface);
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  margin-top: var(--spacing-md);
-  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  background-color: #f8fafc;
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
-  margin-bottom: var(--spacing-sm);
-  color: var(--color-text-primary);
-}
-
-.visualization {
-  width: 100%;
-  height: 400px;
-  background-color: var(--color-hover);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--spacing-md);
-  position: relative;
+  color: #1e293b;
+  margin-bottom: 2rem;
 }
 
 .controls {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .button {
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   font-weight: 500;
-  transition: var(--transition-default);
+  color: white;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .button:hover {
-  background-color: var(--color-primary-hover);
+  background-color: #2563eb;
+}
+
+.visualization {
+  width: 100%;
+  height: 60vh;
+  margin-bottom: 2rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .code {
-  margin-top: var(--spacing-md);
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 2rem;
 }
 
 .codeWrapper {
-  border-radius: var(--radius-sm);
+  width: 100%;
+  border-radius: 0.5rem;
   overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 } 

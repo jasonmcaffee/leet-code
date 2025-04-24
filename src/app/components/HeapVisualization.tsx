@@ -22,9 +22,9 @@ function HeapNode({ value, position, isNew, isImpacted }: {
 }) {
   // Determine node color based on state
   const getNodeColor = () => {
-    if (isNew) return '#059669'; // Darker emerald green
-    if (isImpacted) return '#0284c7'; // Bright cyan blue
-    return '#4f46e5'; // Deep indigo
+    if (isNew) return '#10b981'; // Bright emerald green
+    if (isImpacted) return '#0ea5e9'; // Bright sky blue
+    return '#8b5cf6'; // Bright purple
   };
 
   return (
@@ -168,10 +168,10 @@ function HeapVisualization() {
       <div className={styles.visualization}>
         <Canvas camera={{ position: [0, 0, 12], fov: 45 }}>
           <color attach="background" args={['#f0f0f0']} />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[3, 3, 3]} intensity={1.2} />
-          <directionalLight position={[-3, 3, -3]} intensity={0.8} />
-          <pointLight position={[0, 0, 3]} intensity={0.6} />
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[4, 4, 4]} intensity={1.5} />
+          <directionalLight position={[-4, 4, -4]} intensity={1} />
+          <pointLight position={[0, 0, 4]} intensity={0.8} />
           <TreeContainer nodes={nodes} scrollOffset={scrollOffset} />
           <OrbitControls 
             enablePan={false}

@@ -1,24 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LeetCode Solutions Visualization
+
+This project provides interactive visualizations of various data structures and algorithms, starting with a Min Heap implementation. The visualizations are built using React and Three.js to create an engaging 3D experience.
+
+## Features
+
+- Interactive 3D visualization of a Min Heap
+- Real-time node addition and heap property maintenance
+- Color-coded nodes to show heap operations
+- Smooth animations and transitions
+- Responsive design
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/leet-code.git
+cd leet-code
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open your browser and navigate to `http://localhost:3000`
+
+## Usage
+
+- Click "Add Random Value" to insert a new node into the heap
+- Use arrow keys to scroll up and down the visualization
+- The visualization will automatically maintain the heap property
+- New nodes are shown in green
+- Nodes affected by heap operations are shown in blue
+- Default nodes are shown in purple
+
+## Technologies Used
+
+- React
+- Three.js
+- TypeScript
+- Next.js
 
 ## Learn More
 
