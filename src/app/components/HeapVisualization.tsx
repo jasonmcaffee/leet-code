@@ -143,7 +143,7 @@ function HeapVisualization() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [maxHeap]);
 
   const addRandomValue = () => {
     const newValue = Math.floor(Math.random() * 100);

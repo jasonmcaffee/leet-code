@@ -62,7 +62,7 @@ export class MaxHeap {
    * Maintain heap property by moving a node up if it's larger than its parent.
    * This is used after insertion to ensure the max heap property.
    */
-  private heapifyUp(i: number): void {
+  protected heapifyUp(i: number): void {
     const parent = this.parent(i);
     if (i > 0 && this.heap[i] > this.heap[parent]) {
       this.swap(i, parent);
@@ -88,7 +88,7 @@ export class MaxHeap {
    * Maintain heap property by moving a node down if it's smaller than its children.
    * This is used after extraction to ensure the max heap property.
    */
-  private heapifyDown(i: number): void {
+  protected heapifyDown(i: number): void {
     const left = this.leftChild(i);
     const right = this.rightChild(i);
     let largest = i;
