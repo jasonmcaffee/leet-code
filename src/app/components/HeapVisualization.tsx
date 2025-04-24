@@ -75,9 +75,16 @@ function HeapVisualization() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [scrollOffset, setScrollOffset] = useState(0);
 
+  // Reset the heap and nodes to empty state
+  const resetHeap = () => {
+    setHeap([]);
+    setNodes([]);
+  };
+
   useEffect(() => {
     setMounted(true);
 
+    // Handle keyboard navigation for scrolling
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault(); // Prevent page scrolling
@@ -89,6 +96,7 @@ function HeapVisualization() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Maintain heap property by moving a node up if it's smaller than its parent
   const heapifyUp = (heap: number[], index: number) => {
     const parent = Math.floor((index - 1) / 2);
     if (index > 0 && heap[index] < heap[parent]) {
@@ -97,18 +105,25 @@ function HeapVisualization() {
     }
   };
 
+  // Add a random value to the heap and update visualization
   const addRandomValue = () => {
+    // Generate random value between 0 and 99
     const newValue = Math.floor(Math.random() * 100);
+    // Add to heap and maintain heap property
     const newHeap = [...heap, newValue];
     heapifyUp(newHeap, newHeap.length - 1);
     setHeap(newHeap);
     
-    // Recalculate all node positions
+    // Calculate positions for all nodes in the tree
     const newNodes = newHeap.map((value, index) => {
+      // Calculate the level of the node in the tree (0-based)
       const level = Math.floor(Math.log2(index + 1));
+      // Calculate position within the level
       const positionInLevel = index - Math.pow(2, level) + 1;
+      // Calculate x position based on position in level
       const x = positionInLevel * 2 - Math.pow(2, level) + 1;
-      const y = -level * 2; // Negative Y to make tree grow downward from top
+      // Calculate y position (negative to grow downward)
+      const y = -level * 2 + 4; // Start from top (y=4) and grow downward
       return { value, position: [x, y, 0] as [number, number, number] };
     });
     
@@ -127,10 +142,13 @@ function HeapVisualization() {
         <button className={styles.button} onClick={addRandomValue}>
           Add Random Value
         </button>
+        <button className={styles.button} onClick={resetHeap}>
+          Reset Heap
+        </button>
       </div>
 
       <div className={styles.visualization}>
-        <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+        <Canvas camera={{ position: [0, 0, 15], fov: 50 }}>
           <color attach="background" args={['#f0f0f0']} />
           <ambientLight intensity={0.5} />
           <directionalLight position={[5, 5, 5]} intensity={0.8} />
@@ -159,64 +177,86 @@ function HeapVisualization() {
               background: '#282c34',
             }}
           >
-            {`// Min Heap Implementation
+            {`// MinHeap Implementation
+// A MinHeap is a complete binary tree where each node is smaller than its children
 class MinHeap {
   constructor() {
+    // Initialize an empty array to store the heap
     this.heap = [];
   }
 
+  // Get the index of the parent node
   parent(i) {
     return Math.floor((i - 1) / 2);
   }
 
+  // Get the index of the left child
   leftChild(i) {
     return 2 * i + 1;
   }
 
+  // Get the index of the right child
   rightChild(i) {
     return 2 * i + 2;
   }
 
+  // Swap two elements in the heap
   swap(i, j) {
     [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
   }
 
+  // Insert a new value into the heap
   insert(value) {
+    // Add the new value to the end of the array
     this.heap.push(value);
+    // Maintain heap property by moving the new value up if needed
     this.heapifyUp(this.heap.length - 1);
   }
 
+  // Maintain heap property by moving a node up if it's smaller than its parent
   heapifyUp(i) {
     const parent = this.parent(i);
+    // If the current node is smaller than its parent, swap them
     if (i > 0 && this.heap[i] < this.heap[parent]) {
       this.swap(i, parent);
+      // Continue heapifying up from the parent's position
       this.heapifyUp(parent);
     }
   }
 
+  // Remove and return the minimum value from the heap
   extractMin() {
+    // Handle empty heap case
     if (this.heap.length === 0) return null;
+    // Handle single element case
     if (this.heap.length === 1) return this.heap.pop();
 
+    // Store the minimum value (root)
     const min = this.heap[0];
+    // Replace root with the last element
     this.heap[0] = this.heap.pop();
+    // Maintain heap property by moving the new root down if needed
     this.heapifyDown(0);
     return min;
   }
 
+  // Maintain heap property by moving a node down if it's larger than its children
   heapifyDown(i) {
     const left = this.leftChild(i);
     const right = this.rightChild(i);
     let smallest = i;
 
+    // Check if left child exists and is smaller than current node
     if (left < this.heap.length && this.heap[left] < this.heap[smallest]) {
       smallest = left;
     }
 
+    // Check if right child exists and is smaller than current smallest
     if (right < this.heap.length && this.heap[right] < this.heap[smallest]) {
       smallest = right;
     }
 
+    // If the smallest value is not the current node, swap and continue heapifying down
     if (smallest !== i) {
       this.swap(i, smallest);
       this.heapifyDown(smallest);
