@@ -252,15 +252,17 @@ function HeapVisualization() {
           className={styles.button} 
           onClick={handleUndo}
           disabled={!maxHeap.canUndo()}
+          aria-label="Undo"
         >
-          <FaUndo /> Undo
+          <FaUndo />
         </button>
         <button 
           className={styles.button} 
           onClick={handleRedo}
           disabled={!maxHeap.canRedo()}
+          aria-label="Redo"
         >
-          <FaRedo /> Redo
+          <FaRedo />
         </button>
         <div className={styles.nthControls}>
           <button 
