@@ -6,6 +6,7 @@ import { OrbitControls, Text, Line } from '@react-three/drei';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import typescript from 'react-syntax-highlighter/dist/cjs/languages/prism/typescript';
+import { FaUndo, FaRedo } from 'react-icons/fa';
 import styles from './HeapVisualization.module.css';
 import { MaxHeapWithVisualization } from './MaxHeapWithVisualization';
 
@@ -127,7 +128,8 @@ function HeapVisualization() {
       isInitialLoad.current = false;
     }
     
-    const initialNodes = maxHeap.values.map((value, index) => {
+    const state = maxHeap.getCurrentState();
+    const initialNodes = state.values.map((value, index) => {
       const level = Math.floor(Math.log2(index + 1));
       const positionInLevel = index - Math.pow(2, level) + 1;
       const x = positionInLevel * 2 - Math.pow(2, level) + 1;
@@ -135,8 +137,8 @@ function HeapVisualization() {
       return { 
         value, 
         position: [x, y, 0] as [number, number, number],
-        isNew: index === maxHeap.values.length - 1,
-        isImpacted: maxHeap.getImpactedNodes().has(index)
+        isNew: value === state.newValue,
+        isImpacted: state.impactedNodes.has(index)
       };
     });
     setNodes(initialNodes);
@@ -155,8 +157,8 @@ function HeapVisualization() {
   const addRandomValue = () => {
     const newValue = Math.floor(Math.random() * 100);
     maxHeap.insert(newValue);
-    
-    const newNodes = maxHeap.values.map((value, index) => {
+    const state = maxHeap.getCurrentState();
+    const newNodes = state.values.map((value, index) => {
       const level = Math.floor(Math.log2(index + 1));
       const positionInLevel = index - Math.pow(2, level) + 1;
       const x = positionInLevel * 2 - Math.pow(2, level) + 1;
@@ -164,11 +166,10 @@ function HeapVisualization() {
       return { 
         value, 
         position: [x, y, 0] as [number, number, number],
-        isNew: value === newValue,
-        isImpacted: maxHeap.getImpactedNodes().has(index)
+        isNew: value === state.newValue,
+        isImpacted: state.impactedNodes.has(index)
       };
     });
-    
     setNodes(newNodes);
   };
 
@@ -196,6 +197,42 @@ function HeapVisualization() {
     }
   };
 
+  const handleUndo = () => {
+    maxHeap.undo();
+    const state = maxHeap.getCurrentState();
+    const newNodes = state.values.map((value, index) => {
+      const level = Math.floor(Math.log2(index + 1));
+      const positionInLevel = index - Math.pow(2, level) + 1;
+      const x = positionInLevel * 2 - Math.pow(2, level) + 1;
+      const y = -level * 2 + 4;
+      return { 
+        value, 
+        position: [x, y, 0] as [number, number, number],
+        isNew: value === state.newValue,
+        isImpacted: state.impactedNodes.has(index)
+      };
+    });
+    setNodes(newNodes);
+  };
+
+  const handleRedo = () => {
+    maxHeap.redo();
+    const state = maxHeap.getCurrentState();
+    const newNodes = state.values.map((value, index) => {
+      const level = Math.floor(Math.log2(index + 1));
+      const positionInLevel = index - Math.pow(2, level) + 1;
+      const x = positionInLevel * 2 - Math.pow(2, level) + 1;
+      const y = -level * 2 + 4;
+      return { 
+        value, 
+        position: [x, y, 0] as [number, number, number],
+        isNew: value === state.newValue,
+        isImpacted: state.impactedNodes.has(index)
+      };
+    });
+    setNodes(newNodes);
+  };
+
   if (!mounted) {
     return null;
   }
@@ -210,6 +247,20 @@ function HeapVisualization() {
         </button>
         <button className={styles.button} onClick={resetHeap}>
           Reset Heap
+        </button>
+        <button 
+          className={styles.button} 
+          onClick={handleUndo}
+          disabled={!maxHeap.canUndo()}
+        >
+          <FaUndo /> Undo
+        </button>
+        <button 
+          className={styles.button} 
+          onClick={handleRedo}
+          disabled={!maxHeap.canRedo()}
+        >
+          <FaRedo /> Redo
         </button>
         <div className={styles.nthControls}>
           <button 

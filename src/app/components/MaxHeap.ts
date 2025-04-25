@@ -311,13 +311,24 @@ export class MaxHeap {
   }
 
   /**
-   * Get a copy of the current heap array
-   * 
-   * Example:
-   * For heap [19, 17, 13, 11, 7]
-   * values returns [19, 17, 13, 11, 7]
+   * Remove the last element from the heap
+   */
+  removeLast(): void {
+    if (this.heap.length === 0) return;
+    this.heap.pop();
+  }
+
+  /**
+   * Get the current heap values
    */
   get values(): number[] {
     return [...this.heap];
+  }
+
+  /**
+   * Set the heap values
+   */
+  setValues(values: number[]): void {
+    this.heap = [...values];
   }
 } 

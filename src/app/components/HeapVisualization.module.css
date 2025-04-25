@@ -30,20 +30,32 @@
 }
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: white;
   background-color: #3b82f6;
+  color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
-  white-space: nowrap;
 }
 
 .button:hover {
   background-color: #2563eb;
+}
+
+.button:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.button svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .visualization {
