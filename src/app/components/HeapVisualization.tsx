@@ -19,14 +19,17 @@ interface Node {
   isNew?: boolean;
   isImpacted?: boolean;
   isEvaluating?: boolean;
+  index: number;
 }
 
-function HeapNode({ value, position, isNew, isImpacted, isEvaluating }: { 
+function HeapNode({ value, position, isNew, isImpacted, isEvaluating, index, onSelect }: { 
   value: number; 
   position: [number, number, number];
   isNew?: boolean;
   isImpacted?: boolean;
   isEvaluating?: boolean;
+  index: number;
+  onSelect: (index: number) => void;
 }) {
   const getNodeColor = () => {
     if (isEvaluating) return '#f59e0b';
@@ -36,7 +39,7 @@ function HeapNode({ value, position, isNew, isImpacted, isEvaluating }: {
   };
 
   return (
-    <group position={position}>
+    <group position={position} onClick={() => onSelect(index)}>
       <mesh>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial 
@@ -80,12 +83,25 @@ function HeapConnections({ nodes }: { nodes: Node[] }) {
   );
 }
 
-function TreeContainer({ nodes, scrollOffset }: { nodes: Node[]; scrollOffset: number }) {
+function TreeContainer({ nodes, scrollOffset, onNodeSelect }: { 
+  nodes: Node[]; 
+  scrollOffset: number;
+  onNodeSelect: (index: number) => void;
+}) {
   return (
     <group position={[0, -scrollOffset, 0]}>
       <HeapConnections nodes={nodes} />
       {nodes.map((node, index) => (
-        <HeapNode key={index} value={node.value} position={node.position} isNew={node.isNew} isImpacted={node.isImpacted} isEvaluating={node.isEvaluating} />
+        <HeapNode 
+          key={index} 
+          value={node.value} 
+          position={node.position} 
+          isNew={node.isNew} 
+          isImpacted={node.isImpacted} 
+          isEvaluating={node.isEvaluating}
+          index={index}
+          onSelect={onNodeSelect}
+        />
       ))}
     </group>
   );
@@ -101,6 +117,7 @@ function HeapVisualization() {
   const [isFindingNth, setIsFindingNth] = useState(false);
   const [algorithmDescription, setAlgorithmDescription] = useState<string>('');
   const [codeContent, setCodeContent] = useState<string>('');
+  const [selectedNodeIndex, setSelectedNodeIndex] = useState<number | null>(null);
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
@@ -139,7 +156,8 @@ function HeapVisualization() {
         value, 
         position: [x, y, 0] as [number, number, number],
         isNew: value === state.newValue,
-        isImpacted: state.impactedNodes.has(index)
+        isImpacted: state.impactedNodes.has(index),
+        index
       };
     });
     setNodes(initialNodes);
@@ -168,7 +186,8 @@ function HeapVisualization() {
         value, 
         position: [x, y, 0] as [number, number, number],
         isNew: value === state.newValue,
-        isImpacted: state.impactedNodes.has(index)
+        isImpacted: state.impactedNodes.has(index),
+        index
       };
     });
     setNodes(newNodes);
@@ -210,7 +229,8 @@ function HeapVisualization() {
         value, 
         position: [x, y, 0] as [number, number, number],
         isNew: value === state.newValue,
-        isImpacted: state.impactedNodes.has(index)
+        isImpacted: state.impactedNodes.has(index),
+        index
       };
     });
     setNodes(newNodes);
@@ -228,7 +248,8 @@ function HeapVisualization() {
         value, 
         position: [x, y, 0] as [number, number, number],
         isNew: value === state.newValue,
-        isImpacted: state.impactedNodes.has(index)
+        isImpacted: state.impactedNodes.has(index),
+        index
       };
     });
     setNodes(newNodes);
@@ -251,11 +272,42 @@ function HeapVisualization() {
         value, 
         position: [x, y, 0] as [number, number, number],
         isNew: value === state.newValue,
-        isImpacted: state.impactedNodes.has(index)
+        isImpacted: state.impactedNodes.has(index),
+        index
       };
     });
     setNodes(newNodes);
     setCustomValue('');
+  };
+
+  const handleNodeSelect = (index: number) => {
+    setSelectedNodeIndex(index);
+    const node = nodes[index];
+    const parentIndex = Math.floor((index - 1) / 2);
+    const leftChildIndex = 2 * index + 1;
+    const rightChildIndex = 2 * index + 2;
+    
+    let description = `Node: ${index}, ${node.value}<br />`;
+    
+    if (parentIndex >= 0) {
+      description += `Parent: ${parentIndex}, ${nodes[parentIndex].value}<br />`;
+    } else {
+      description += `Parent: None<br />`;
+    }
+    
+    if (leftChildIndex < nodes.length) {
+      description += `Child Left: ${leftChildIndex}, ${nodes[leftChildIndex].value}<br />`;
+    } else {
+      description += `Child Left: None<br />`;
+    }
+    
+    if (rightChildIndex < nodes.length) {
+      description += `Child Right: ${rightChildIndex}, ${nodes[rightChildIndex].value}`;
+    } else {
+      description += `Child Right: None`;
+    }
+    
+    setAlgorithmDescription(description);
   };
 
   if (!mounted) {
@@ -324,9 +376,10 @@ function HeapVisualization() {
             Reset Heap
           </button>
         </div>
-        <div className={styles.algorithmDescription}>
-          {algorithmDescription}
-        </div>
+        <div 
+          className={styles.algorithmDescription}
+          dangerouslySetInnerHTML={{ __html: algorithmDescription }}
+        />
       </div>
 
       <div className={styles.visualization}>
@@ -336,7 +389,11 @@ function HeapVisualization() {
           <directionalLight position={[4, 4, 4]} intensity={1.5} />
           <directionalLight position={[-4, 4, -4]} intensity={1} />
           <pointLight position={[0, 0, 4]} intensity={0.8} />
-          <TreeContainer nodes={nodes} scrollOffset={scrollOffset} />
+          <TreeContainer 
+            nodes={nodes} 
+            scrollOffset={scrollOffset} 
+            onNodeSelect={handleNodeSelect}
+          />
           <OrbitControls 
             enablePan={false}
             minPolarAngle={Math.PI / 4}
