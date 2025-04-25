@@ -21,34 +21,38 @@
 
 .controls {
   display: flex;
-  gap: 0.75rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
   width: 100%;
-  max-width: 800px;
-  justify-content: flex-start;
+}
+
+.controlsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
 }
 
 .button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
   padding: 0.5rem 1rem;
   background-color: #3b82f6;
   color: white;
   border: none;
   border-radius: 0.375rem;
+  cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
   transition: background-color 0.2s;
-  height: 2.5rem;
-  min-width: 2.5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
 }
 
 .button:hover {
@@ -95,14 +99,14 @@
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-.nthControls {
+.nthControls,
+.customValueControls {
   display: flex;
   gap: 0.5rem;
   align-items: center;
   background-color: #f1f5f9;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  margin-left: auto;
 }
 
 .input {
@@ -131,8 +135,5 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  margin-left: auto;
-  max-width: 400px;
-  flex: 0 1 auto;
-  min-width: 300px;
+  width: 100%;
 } 

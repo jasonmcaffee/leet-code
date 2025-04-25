@@ -97,6 +97,7 @@ function HeapVisualization() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [nthValue, setNthValue] = useState<string>('1');
+  const [customValue, setCustomValue] = useState<string>('');
   const [isFindingNth, setIsFindingNth] = useState(false);
   const [algorithmDescription, setAlgorithmDescription] = useState<string>('');
   const [codeContent, setCodeContent] = useState<string>('');
@@ -233,6 +234,30 @@ function HeapVisualization() {
     setNodes(newNodes);
   };
 
+  const addCustomValue = () => {
+    const value = parseInt(customValue);
+    if (isNaN(value)) {
+      setAlgorithmDescription('Please enter a valid number');
+      return;
+    }
+    maxHeap.insert(value);
+    const state = maxHeap.getCurrentState();
+    const newNodes = state.values.map((value, index) => {
+      const level = Math.floor(Math.log2(index + 1));
+      const positionInLevel = index - Math.pow(2, level) + 1;
+      const x = positionInLevel * 2 - Math.pow(2, level) + 1;
+      const y = -level * 2 + 4;
+      return { 
+        value, 
+        position: [x, y, 0] as [number, number, number],
+        isNew: value === state.newValue,
+        isImpacted: state.impactedNodes.has(index)
+      };
+    });
+    setNodes(newNodes);
+    setCustomValue('');
+  };
+
   if (!mounted) {
     return null;
   }
@@ -242,45 +267,62 @@ function HeapVisualization() {
       {/* <h2 className={styles.title}>Max Heap Visualization</h2> */}
       
       <div className={styles.controls}>
-        <button className={styles.button} onClick={addRandomValue}>
-          Add Random Value
-        </button>
-        <button className={styles.button} onClick={resetHeap}>
-          Reset Heap
-        </button>
-        <button 
-          className={styles.button} 
-          onClick={handleUndo}
-          disabled={!maxHeap.canUndo()}
-          aria-label="Undo"
-        >
-          <FaUndo />
-        </button>
-        <button 
-          className={styles.button} 
-          onClick={handleRedo}
-          disabled={!maxHeap.canRedo()}
-          aria-label="Redo"
-        >
-          <FaRedo />
-        </button>
-        <div className={styles.nthControls}>
+        <div className={styles.controlsRow}>
+          <div className={styles.customValueControls}>
+            <input
+              type="number"
+              value={customValue}
+              onChange={(e) => setCustomValue(e.target.value)}
+              className={styles.input}
+              placeholder="Enter value"
+            />
+            <button 
+              className={styles.button} 
+              onClick={addCustomValue}
+            >
+              Add Value
+            </button>
+          </div>
+          <button className={styles.button} onClick={addRandomValue}>
+            Add Random Value
+          </button>
           <button 
             className={styles.button} 
-            onClick={findNthLargest}
-            disabled={isFindingNth || maxHeap.size === 0}
+            onClick={handleUndo}
+            disabled={!maxHeap.canUndo()}
+            aria-label="Undo"
           >
-            Find Nth Largest
+            <FaUndo />
           </button>
-          <input
-            type="number"
-            min="1"
-            value={nthValue}
-            onChange={(e) => setNthValue(e.target.value)}
-            className={styles.input}
-            placeholder="N"
-            disabled={isFindingNth}
-          />
+          <button 
+            className={styles.button} 
+            onClick={handleRedo}
+            disabled={!maxHeap.canRedo()}
+            aria-label="Redo"
+          >
+            <FaRedo />
+          </button>
+          <div className={styles.nthControls}>
+            <button 
+              className={styles.button} 
+              onClick={findNthLargest}
+              disabled={isFindingNth || maxHeap.size === 0}
+            >
+              Find Nth Largest
+            </button>
+            <input
+              type="number"
+              min="1"
+              value={nthValue}
+              onChange={(e) => setNthValue(e.target.value)}
+              className={styles.input}
+              placeholder="N"
+              disabled={isFindingNth}
+            />
+          </div>
+          <button className={styles.button} onClick={resetHeap}>
+            Reset Heap
+          </button>
         </div>
         <div className={styles.algorithmDescription}>
           {algorithmDescription}
