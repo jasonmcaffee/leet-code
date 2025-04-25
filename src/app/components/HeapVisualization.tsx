@@ -164,7 +164,7 @@ function HeapVisualization() {
       return { 
         value, 
         position: [x, y, 0] as [number, number, number],
-        isNew: index === maxHeap.values.length - 1,
+        isNew: value === newValue,
         isImpacted: maxHeap.getImpactedNodes().has(index)
       };
     });

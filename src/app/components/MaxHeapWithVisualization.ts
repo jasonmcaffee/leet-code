@@ -57,6 +57,7 @@ export class MaxHeapWithVisualization extends MaxHeap {
     const parent = Math.floor((i - 1) / 2);
     if (i > 0 && this.values[i] > this.values[parent]) {
       this.swap(i, parent);
+      this.impactedNodes.add(i);
       this.impactedNodes.add(parent);
       this.heapifyUp(parent);
     }
