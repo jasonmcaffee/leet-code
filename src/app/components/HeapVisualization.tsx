@@ -117,7 +117,6 @@ function HeapVisualization() {
   const [isFindingNth, setIsFindingNth] = useState(false);
   const [algorithmDescription, setAlgorithmDescription] = useState<string>('');
   const [codeContent, setCodeContent] = useState<string>('');
-  const [selectedNodeIndex, setSelectedNodeIndex] = useState<number | null>(null);
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
@@ -281,7 +280,6 @@ function HeapVisualization() {
   };
 
   const handleNodeSelect = (index: number) => {
-    setSelectedNodeIndex(index);
     const node = nodes[index];
     const parentIndex = Math.floor((index - 1) / 2);
     const leftChildIndex = 2 * index + 1;
